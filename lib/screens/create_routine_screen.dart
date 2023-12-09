@@ -1,15 +1,18 @@
+import 'package:daily_routine_app_isar/collection/category.dart';
+import 'package:daily_routine_app_isar/services/isar_services.dart';
 import 'package:flutter/material.dart';
 
 class CreateRoutine extends StatefulWidget {
-  const CreateRoutine({super.key});
+  final IsarServices isarServices;
+  const CreateRoutine({super.key, required this.isarServices});
 
   @override
   State<CreateRoutine> createState() => _CreateRoutineState();
 }
 
 class _CreateRoutineState extends State<CreateRoutine> {
-  List<String> categories = ['work', 'school', 'home'];
-  String dropdownButtonValue = 'work';
+  List<Category>? categories;
+  Category? dropdownButtonValue;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _newCatController = TextEditingController();
@@ -24,6 +27,13 @@ class _CreateRoutineState extends State<CreateRoutine> {
   ];
   String selectedDayOfWeek = 'Mon';
   TimeOfDay selectedTime = TimeOfDay.now();
+
+  @override
+  void initState() {
+    _readCategory();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color primaryColor = Colors.indigo;
@@ -52,15 +62,26 @@ class _CreateRoutineState extends State<CreateRoutine> {
               children: [
                 SizedBox(
                   width: size.width * .7,
-                  child: DropdownButton(
+                  child: DropdownButtonFormField(
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(AppDimens.medium))),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: secondaryColor),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(AppDimens.medium)),
+                        )),
                     focusColor: const Color(0xffffffff),
                     dropdownColor: const Color(0xffffffff),
                     isExpanded: true,
                     items: categories
-                        .map<DropdownMenuItem>((e) => DropdownMenuItem<String>(
-                              value: e,
-                              child: Text(e),
-                            ))
+                        ?.map<DropdownMenuItem>(
+                            (e) => DropdownMenuItem<Category>(
+                                  value: e,
+                                  child: Text(e.name),
+                                ))
                         .toList(),
                     onChanged: (value) {
                       setState(() {
@@ -104,7 +125,15 @@ class _CreateRoutineState extends State<CreateRoutine> {
                                                           AppDimens.medium)))),
                                           minimumSize: MaterialStatePropertyAll(
                                               Size.fromHeight(50))),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        if (_newCatController.text.isNotEmpty) {
+                                          widget.isarServices.addCategory(
+                                              _newCatController.text);
+                                        }
+                                        _newCatController.clear();
+                                        _readCategory();
+                                        Navigator.pop(context);
+                                      },
                                       child: const Text('Add'))
                                 ],
                               ));
@@ -168,7 +197,17 @@ class _CreateRoutineState extends State<CreateRoutine> {
             Text('Day', style: titleStyle),
             SizedBox(
               width: size.width * .7,
-              child: DropdownButton(
+              child: DropdownButtonFormField(
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(AppDimens.medium))),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: secondaryColor),
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(AppDimens.medium)),
+                      )),
                   isExpanded: true,
                   focusColor: const Color(0xffffffff),
                   dropdownColor: const Color(0xffffffff),
@@ -219,6 +258,12 @@ class _CreateRoutineState extends State<CreateRoutine> {
             '${selectedTime.hour}:${selectedTime.minute} ${selectedTime.period.name}';
       });
     }
+  }
+
+  void _readCategory() async {
+    categories = await widget.isarServices.getAllCategories();
+    dropdownButtonValue = null;
+    setState(() {});
   }
 }
 
