@@ -280,12 +280,13 @@ class _CreateRoutineState extends State<CreateRoutine> {
         routineDay: selectedDayOfWeek,
         routineCategory: selectedCategory!);
 
-    _titleController.clear();
-    _timeController.clear();
-    selectedCategory = null;
-    selectedDayOfWeek = 'Monday';
-    resetDropdownValue();
-    setState(() {});
+    setState(() {
+      _titleController.clear();
+      _timeController.clear();
+      selectedCategory = null;
+      selectedDayOfWeek = 'Monday';
+      resetDropdownValue();
+    });
   }
 
   void resetDropdownValue() {
