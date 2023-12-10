@@ -1,7 +1,8 @@
-import 'package:daily_routine_app_isar/collection/category.dart';
-import 'package:daily_routine_app_isar/collection/routine.dart';
+import 'package:daily_routine_app_isar/src/data/category.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../data/routine.dart';
 
 class IsarServices {
   late Future<Isar> db;

@@ -1,6 +1,9 @@
-import 'package:daily_routine_app_isar/screens/create_routine_screen.dart';
-import 'package:daily_routine_app_isar/services/isar_services.dart';
+
+
 import 'package:flutter/material.dart';
+
+import '../services/isar_services.dart';
+import 'create_routine_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

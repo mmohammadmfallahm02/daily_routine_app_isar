@@ -1,4 +1,4 @@
-import 'package:daily_routine_app_isar/collection/category.dart';
+import 'package:daily_routine_app_isar/src/data/category.dart';
 import 'package:isar/isar.dart';
 
 part 'routine.g.dart';
