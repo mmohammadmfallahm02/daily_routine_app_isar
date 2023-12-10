@@ -12,20 +12,23 @@ class CreateRoutine extends StatefulWidget {
 
 class _CreateRoutineState extends State<CreateRoutine> {
   List<Category>? categories;
-  Category? dropdownButtonValue;
+  Category? selectedCategory;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _newCatController = TextEditingController();
+  final GlobalKey<FormFieldState> _dayKey = GlobalKey();
+  final GlobalKey<FormFieldState> _categoryKey = GlobalKey();
+
   List<String> days = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
-  String selectedDayOfWeek = 'Mon';
+  String selectedDayOfWeek = 'Monday';
   TimeOfDay selectedTime = TimeOfDay.now();
 
   @override
@@ -63,6 +66,7 @@ class _CreateRoutineState extends State<CreateRoutine> {
                 SizedBox(
                   width: size.width * .7,
                   child: DropdownButtonFormField(
+                    key: _categoryKey,
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
@@ -85,10 +89,10 @@ class _CreateRoutineState extends State<CreateRoutine> {
                         .toList(),
                     onChanged: (value) {
                       setState(() {
-                        dropdownButtonValue = value;
+                        selectedCategory = value;
                       });
                     },
-                    value: dropdownButtonValue,
+                    value: selectedCategory,
                     icon: const Icon(Icons.keyboard_arrow_down),
                   ),
                 ),
@@ -198,6 +202,7 @@ class _CreateRoutineState extends State<CreateRoutine> {
             SizedBox(
               width: size.width * .7,
               child: DropdownButtonFormField(
+                  key: _dayKey,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
@@ -230,7 +235,9 @@ class _CreateRoutineState extends State<CreateRoutine> {
             Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    addRoutine();
+                  },
                   style: const ButtonStyle(
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
@@ -262,8 +269,28 @@ class _CreateRoutineState extends State<CreateRoutine> {
 
   void _readCategory() async {
     categories = await widget.isarServices.getAllCategories();
-    dropdownButtonValue = null;
+    selectedCategory = null;
     setState(() {});
+  }
+
+  void addRoutine() async {
+    widget.isarServices.addRoutine(
+        routineTitle: _titleController.text,
+        startTimeRoutine: _timeController.text,
+        routineDay: selectedDayOfWeek,
+        routineCategory: selectedCategory!);
+
+    _titleController.clear();
+    _timeController.clear();
+    selectedCategory = null;
+    selectedDayOfWeek = 'Monday';
+    resetDropdownValue();
+    setState(() {});
+  }
+
+  void resetDropdownValue() {
+    _categoryKey.currentState!.didChange(selectedCategory);
+    _dayKey.currentState!.didChange(selectedDayOfWeek);
   }
 }
 
