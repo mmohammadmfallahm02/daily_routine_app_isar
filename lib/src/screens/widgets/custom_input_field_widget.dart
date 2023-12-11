@@ -10,15 +10,15 @@ class CustomInputField extends StatelessWidget {
   final void Function()? onPressed;
 
   const CustomInputField({
-    super.key,
+    Key? key,
     required this.label,
     required this.controller,
-    required this.labelStyle,
+    this.labelStyle = const TextStyle(),
     this.widgetWidth,
     this.hasButton = false,
     this.enabled,
     this.onPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +29,26 @@ class CustomInputField extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-              width: widgetWidth ?? MediaQuery.sizeOf(context).width * .88,
-              child: TextFormField(
-                enabled: enabled,
-                controller: controller,
-              ),
-            ),
-            if (hasButton)
-              IconButton(
-                  onPressed: onPressed, icon: const Icon(Icons.calendar_month))
+            widgetWidth == null
+                ? Expanded(
+                    child: TextFormField(
+                      enabled: enabled,
+                      controller: controller,
+                    ),
+                  )
+                : SizedBox(
+                    width: widgetWidth,
+                    child: TextFormField(
+                      enabled: enabled,
+                      controller: controller,
+                    ),
+                  ),
+            Visibility(
+                visible: hasButton,
+                child: IconButton(
+                  onPressed: onPressed,
+                  icon: const Icon(Icons.calendar_month),
+                ))
           ],
         ),
       ],

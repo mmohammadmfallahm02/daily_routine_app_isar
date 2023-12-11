@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
             inputDecorationTheme: InputDecorationTheme(
+              contentPadding: const EdgeInsets.all(AppDimens.medium),
               border: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey),
                   borderRadius:

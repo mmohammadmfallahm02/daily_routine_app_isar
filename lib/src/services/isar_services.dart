@@ -38,6 +38,12 @@ class IsarServices {
     return categories;
   }
 
+  Future<List<Routine>> getAllRoutine() async {
+    final isar = await db;
+    final routine = await isar.routines.where().findAll();
+    return routine;
+  }
+
   Future<Isar> openDb() async {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.instanceNames.isEmpty) {

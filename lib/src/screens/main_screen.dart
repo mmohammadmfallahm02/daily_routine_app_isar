@@ -1,9 +1,11 @@
-
-
+import 'package:daily_routine_app_isar/src/data/routine.dart';
+import 'package:daily_routine_app_isar/src/utils/dimens.dart';
+import 'package:daily_routine_app_isar/src/utils/themes.dart';
 import 'package:flutter/material.dart';
 
 import '../services/isar_services.dart';
 import 'create_routine_screen.dart';
+import 'widgets/routine_card_widget.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,14 +15,23 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final Color secondaryColor = Colors.indigo.withOpacity(.5);
   final IsarServices isarServices = IsarServices();
+  List<Routine>? routines;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    setState(() {
+      _readRoutine();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: secondaryColor,
+        backgroundColor: AppColors.secondaryColor,
         title: const Text('Routine'),
         actions: [
           IconButton(
@@ -37,6 +48,32 @@ class _MainScreenState extends State<MainScreen> {
         ],
         centerTitle: true,
       ),
+      body: isLoading == true
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.only(top: AppDimens.medium),
+              shrinkWrap: true,
+              itemCount: routines!.length,
+              itemBuilder: (BuildContext context, int index) {
+                final item = routines![index];
+                return RoutineCardWidget(
+                  title: item.title,
+                  routineDay: item.day,
+                  routineTime: item.startTime,
+                );
+              }),
     );
+  }
+
+  void _readRoutine() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    routines = await isarServices.getAllRoutine();
+
+    setState(() {
+      isLoading = false;
+    });
   }
 }
