@@ -32,6 +32,24 @@ class IsarServices {
     isar.writeTxnSync(() => isar.routines.putSync(newRoutine));
   }
 
+  Future<void> updateRoutine({
+    required int id,
+    required String routineTitle,
+    required String startTimeRoutine,
+    required String routineDay,
+    required Category routineCategory,
+  }) async {
+    final isar = await db;
+    final routineCollection = isar.routines;
+    isar.writeTxnSync(() async {
+      routineCollection.putSync(isar.routines.getSync(id)!
+        ..title = routineTitle
+        ..startTime = startTimeRoutine
+        ..day = routineDay
+        ..category.value = routineCategory);
+    });
+  }
+
   Future<List<Category>> getAllCategories() async {
     final isar = await db;
     final categories = await isar.categorys.where().findAll();

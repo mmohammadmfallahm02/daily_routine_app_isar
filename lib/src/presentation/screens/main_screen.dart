@@ -3,9 +3,9 @@ import 'package:daily_routine_app_isar/src/utils/dimens.dart';
 import 'package:daily_routine_app_isar/src/utils/themes.dart';
 import 'package:flutter/material.dart';
 
-import '../services/isar_services.dart';
+import '../widgets/routine_card_widget.dart';
+import '../../services/isar_services.dart';
 import 'create_routine_screen.dart';
-import 'widgets/routine_card_widget.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -50,19 +50,31 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: isLoading == true
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: const EdgeInsets.only(top: AppDimens.medium),
-              shrinkWrap: true,
-              itemCount: routines!.length,
-              itemBuilder: (BuildContext context, int index) {
-                final item = routines![index];
-                return RoutineCardWidget(
-                  title: item.title,
-                  routineDay: item.day,
-                  routineTime: item.startTime,
-                );
+          : FutureBuilder<ListView>(
+              future: _buildListCards(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data!;
+                } else {
+                  return const SizedBox();
+                }
               }),
     );
+  }
+
+  Future<ListView> _buildListCards() async {
+    _readRoutine();
+    return ListView.builder(
+        padding: const EdgeInsets.only(top: AppDimens.medium),
+        shrinkWrap: true,
+        itemCount: routines!.length,
+        itemBuilder: (BuildContext context, int index) {
+          final item = routines![index];
+          return RoutineCardWidget(
+            isarServices: isarServices,
+            routine: item,
+          );
+        });
   }
 
   void _readRoutine() async {

@@ -1,24 +1,38 @@
+import 'package:daily_routine_app_isar/src/data/routine.dart';
+import 'package:daily_routine_app_isar/src/services/isar_services.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/update_routine_screen.dart';
 import '../../utils/dimens.dart';
 
 class RoutineCardWidget extends StatelessWidget {
-  final String title;
-  final String routineTime;
-  final String routineDay;
-  const RoutineCardWidget(
-      {super.key,
-      required this.routineTime,
-      required this.routineDay,
-      required this.title});
+  final IsarServices isarServices;
+  final Routine routine;
+  const RoutineCardWidget({
+    super.key,
+    required this.isarServices,
+    required this.routine,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final title = routine.title;
+    final routineTime = routine.startTime;
+    final routineDay = routine.day;
     return Card(
       margin: const EdgeInsets.symmetric(
           vertical: AppDimens.small * 1.5, horizontal: AppDimens.large),
       elevation: 4.0,
       child: ListTile(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => UpdateRoutineScreen(
+                        isarServices: isarServices,
+                        routine: routine,
+                      )));
+        },
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
               padding: const EdgeInsets.only(
@@ -31,6 +45,7 @@ class RoutineCardWidget extends StatelessWidget {
             padding: const EdgeInsets.only(
                 left: AppDimens.small, bottom: AppDimens.medium),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _routineCardRichTxt(
                     text: routineTime, iconData: Icons.schedule),
