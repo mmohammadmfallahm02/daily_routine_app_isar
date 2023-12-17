@@ -16,6 +16,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final IsarServices isarServices = IsarServices();
+  final TextEditingController _searchController = TextEditingController();
   List<Routine>? routines;
   bool isLoading = true;
 
@@ -46,28 +47,73 @@ class _MainScreenState extends State<MainScreen> {
         ],
         centerTitle: true,
       ),
-      body: StreamBuilder(
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return _buildListCards(snapshot.data!
-                .map((e) => Routine()
-                  ..id = e.id
-                  ..title = e.title
-                  ..startTime = e.startTime
-                  ..day = e.day
-                  ..category.value = e.category.value)
-                .toList());
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-        stream: isarServices.listenToRoutine(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppDimens.medium, horizontal: AppDimens.large),
+                child: TextFormField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(
+                      hintText: 'Search routine',
+                      hintStyle: TextStyle(fontStyle: FontStyle.italic)),
+                  onChanged: _searchRoutineByName,
+                )),
+            _buildRoutineList()
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoutineList() {
+    return (_searchController.text.isNotEmpty)
+        ? _buildSearchResults()
+        : _buildAllRoutines();
+  }
+
+  Widget _buildSearchResults() {
+    return (routines != null)
+        ? _buildListCards(routines!)
+        : _buildNoResultsMessage();
+  }
+
+  Widget _buildAllRoutines() {
+    return StreamBuilder(
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<Routine> routines = snapshot.data!;
+          return _buildListCards(routines);
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
+      stream: isarServices.listenToRoutine(),
+    );
+  }
+
+  Widget _buildNoResultsMessage() {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: MediaQuery.sizeOf(context).height / 3,
+      ),
+      child: const Center(
+        child: Text(
+          'No routine found!',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
 
   _buildListCards(List<Routine> routines) {
     return ListView.builder(
+        physics: const ClampingScrollPhysics(),
         padding: const EdgeInsets.only(top: AppDimens.medium),
         shrinkWrap: true,
         itemCount: routines.length,
@@ -78,5 +124,16 @@ class _MainScreenState extends State<MainScreen> {
             routine: item,
           );
         });
+  }
+
+  Future<void> _searchRoutineByName(String searchName) async {
+    final searchRoutines = await isarServices.getRoutineByName(searchName);
+    setState(() {
+      if (searchRoutines.isNotEmpty) {
+        routines = searchRoutines;
+      } else {
+        routines = null;
+      }
+    });
   }
 }

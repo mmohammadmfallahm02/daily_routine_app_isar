@@ -43,6 +43,13 @@ class IsarServices {
     isar.writeTxn(() => isar.routines.delete(id));
   }
 
+  Future<List<Routine>> getRoutineByName(String searchName) async {
+    final isar = await db;
+    final routines =
+        await isar.routines.filter().titleContains(searchName).findAll();
+    return routines;
+  }
+
   Future<List<Category>> getAllCategories() async {
     final isar = await db;
     final categories = await isar.categorys.where().findAll();
