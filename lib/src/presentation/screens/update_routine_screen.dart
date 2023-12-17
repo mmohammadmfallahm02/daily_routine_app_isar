@@ -59,6 +59,43 @@ class _UpdateRoutineScreenState extends State<UpdateRoutineScreen> {
         backgroundColor: AppColors.secondaryColor,
         title: const Text('Update routine'),
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          title: const Text('Delete Routine'),
+                          content: const Text(
+                              'Are you sure you want to delete this routine?'),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                widget.isarServices
+                                    .deleteRoutineById(id: widget.routine.id);
+                                Navigator.of(context)
+                                  ..pop()
+                                  ..pop();
+                              },
+                              child: const Text(
+                                'Yes',
+                                style: TextStyle(color: Colors.green),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'No',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            )
+                          ],
+                        ));
+              },
+              icon: const Icon(Icons.delete))
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

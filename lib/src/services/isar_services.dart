@@ -38,6 +38,11 @@ class IsarServices {
     return routine;
   }
 
+  Future<void> deleteRoutineById({required int id}) async {
+    final isar = await db;
+    isar.writeTxn(() => isar.routines.delete(id));
+  }
+
   Future<List<Category>> getAllCategories() async {
     final isar = await db;
     final categories = await isar.categorys.where().findAll();
