@@ -21,9 +21,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    setState(() {
-      _readRoutine();
-    });
+    isarServices.listenToRoutine();
     super.initState();
   }
 
@@ -48,44 +46,37 @@ class _MainScreenState extends State<MainScreen> {
         ],
         centerTitle: true,
       ),
-      body: isLoading == true
-          ? const Center(child: CircularProgressIndicator())
-          : FutureBuilder<ListView>(
-              future: _buildListCards(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return snapshot.data!;
-                } else {
-                  return const SizedBox();
-                }
-              }),
+      body: StreamBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _buildListCards(snapshot.data!
+                .map((e) => Routine()
+                  ..id = e.id
+                  ..title = e.title
+                  ..startTime = e.startTime
+                  ..day = e.day
+                  ..category.value = e.category.value)
+                .toList());
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
+        stream: isarServices.listenToRoutine(),
+      ),
     );
   }
 
-  Future<ListView> _buildListCards() async {
-    _readRoutine();
+  _buildListCards(List<Routine> routines) {
     return ListView.builder(
         padding: const EdgeInsets.only(top: AppDimens.medium),
         shrinkWrap: true,
-        itemCount: routines!.length,
+        itemCount: routines.length,
         itemBuilder: (BuildContext context, int index) {
-          final item = routines![index];
+          final item = routines[index];
           return RoutineCardWidget(
             isarServices: isarServices,
             routine: item,
           );
         });
-  }
-
-  void _readRoutine() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    routines = await isarServices.getAllRoutine();
-
-    setState(() {
-      isLoading = false;
-    });
   }
 }

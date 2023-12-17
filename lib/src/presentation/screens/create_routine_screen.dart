@@ -1,4 +1,5 @@
 import 'package:daily_routine_app_isar/src/data/category.dart';
+import 'package:daily_routine_app_isar/src/data/routine.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/custom_dropdown_button_widget.dart';
@@ -195,10 +196,11 @@ class _CreateRoutineState extends State<CreateRoutine> {
 
   void addRoutine() async {
     widget.isarServices.addRoutine(
-        routineTitle: _titleController.text,
-        startTimeRoutine: _timeController.text,
-        routineDay: selectedDayOfWeek,
-        routineCategory: selectedCategory!);
+        newRoutine: Routine()
+          ..title = _titleController.text
+          ..startTime = _timeController.text
+          ..day = selectedDayOfWeek
+          ..category.value = selectedCategory!);
 
     setState(() {
       _titleController.clear();

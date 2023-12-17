@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:daily_routine_app_isar/src/data/category.dart';
 import 'package:daily_routine_app_isar/src/data/routine.dart';
 import 'package:daily_routine_app_isar/src/services/isar_services.dart';
@@ -178,7 +176,6 @@ class _UpdateRoutineScreenState extends State<UpdateRoutineScreen> {
   }
 
   void _selectedTime(BuildContext context) async {
-    log('this is for test $selectedTime');
     final TimeOfDay? timeOfDay = await showTimePicker(
         context: context,
         initialTime: selectedTime,
@@ -210,18 +207,21 @@ class _UpdateRoutineScreenState extends State<UpdateRoutineScreen> {
   }
 
   Future<void> _setCategoryValue() async {
-    await widget.routine.category.load();
     String? categoryTitle = widget.routine.category.value?.name;
     selectedCategory = categories!
         .firstWhere((Category element) => element.name == categoryTitle!);
   }
 
-  void _updateRoutine() {
-    widget.isarServices.updateRoutine(
-        id: widget.routine.id,
-        routineTitle: _titleController.text,
-        startTimeRoutine: _timeController.text,
-        routineDay: selectedDayOfWeek,
-        routineCategory: selectedCategory!);
+  Future<void> _updateRoutine() async {
+    final currentRoutine =
+        await widget.isarServices.getRoutineById(id: widget.routine.id);
+    if (currentRoutine != null) {
+      widget.isarServices.updateRoutine(
+          updatedRoutine: currentRoutine
+            ..title = _titleController.text
+            ..startTime = _timeController.text
+            ..day = selectedDayOfWeek
+            ..category.value = selectedCategory!);
+    }
   }
 }

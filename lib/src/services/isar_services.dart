@@ -17,37 +17,25 @@ class IsarServices {
     isar.writeTxnSync(() => isar.categorys.putSync(newCategory));
   }
 
-  Future<void> addRoutine({
-    required String routineTitle,
-    required String startTimeRoutine,
-    required String routineDay,
-    required Category routineCategory,
-  }) async {
+  Future<void> addRoutine({required Routine newRoutine}) async {
     final isar = await db;
-    final newRoutine = Routine()
-      ..title = routineTitle
-      ..startTime = startTimeRoutine
-      ..day = routineDay
-      ..category.value = routineCategory;
     isar.writeTxnSync(() => isar.routines.putSync(newRoutine));
   }
 
-  Future<void> updateRoutine({
-    required int id,
-    required String routineTitle,
-    required String startTimeRoutine,
-    required String routineDay,
-    required Category routineCategory,
-  }) async {
+  Future<void> updateRoutine({required Routine updatedRoutine}) async {
     final isar = await db;
-    final routineCollection = isar.routines;
-    isar.writeTxnSync(() async {
-      routineCollection.putSync(isar.routines.getSync(id)!
-        ..title = routineTitle
-        ..startTime = startTimeRoutine
-        ..day = routineDay
-        ..category.value = routineCategory);
-    });
+    isar.writeTxnSync(() => isar.routines.putSync(updatedRoutine));
+  }
+
+  Stream<List<Routine>> listenToRoutine() async* {
+    final isar = await db;
+    yield* isar.routines.where().watch(fireImmediately: true);
+  }
+
+  Future<Routine?> getRoutineById({required int id}) async {
+    final isar = await db;
+    final routine = isar.routines.getSync(id);
+    return routine;
   }
 
   Future<List<Category>> getAllCategories() async {
