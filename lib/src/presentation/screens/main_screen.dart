@@ -58,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
                   ..category.value = e.category.value)
                 .toList());
           } else {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
         },
         stream: isarServices.listenToRoutine(),

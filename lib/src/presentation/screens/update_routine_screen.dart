@@ -1,6 +1,7 @@
 import 'package:daily_routine_app_isar/src/data/category.dart';
 import 'package:daily_routine_app_isar/src/data/routine.dart';
 import 'package:daily_routine_app_isar/src/services/isar_services.dart';
+import 'package:daily_routine_app_isar/src/utils/extension.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/custom_dropdown_button_widget.dart';
@@ -184,8 +185,7 @@ class _UpdateRoutineScreenState extends State<UpdateRoutineScreen> {
     if (timeOfDay != null && timeOfDay != selectedTime) {
       setState(() {
         selectedTime = timeOfDay;
-        _timeController.text =
-            '${selectedTime.hour}:${selectedTime.minute} ${selectedTime.period.name}';
+        _timeController.text = selectedTime.timeToString();
       });
     }
   }
@@ -203,6 +203,7 @@ class _UpdateRoutineScreenState extends State<UpdateRoutineScreen> {
       _titleController.text = routine.title;
       _timeController.text = routine.startTime;
       selectedDayOfWeek = routine.day;
+      selectedTime = routine.startTime.stringToTime();
     });
   }
 
