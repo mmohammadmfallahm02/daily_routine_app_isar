@@ -62,6 +62,11 @@ class IsarServices {
     return routine;
   }
 
+  Future<void> clearAll() async {
+    final isar = await db;
+    isar.writeTxn(() => isar.routines.clear());
+  }
+
   Future<Isar> openDb() async {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.instanceNames.isEmpty) {

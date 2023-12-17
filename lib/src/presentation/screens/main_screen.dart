@@ -29,6 +29,14 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            isarServices.clearAll();
+          },
+          label: const Text(
+            'Delete All',
+            style: TextStyle(color: Colors.red),
+          )),
       appBar: AppBar(
         backgroundColor: AppColors.secondaryColor,
         title: const Text('Routine'),
