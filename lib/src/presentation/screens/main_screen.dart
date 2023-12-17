@@ -19,10 +19,13 @@ class _MainScreenState extends State<MainScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Routine>? routines;
   bool isLoading = true;
+  String feedback = '';
+  Color? feedbackColor;
 
   @override
   void initState() {
     isarServices.listenToRoutine();
+    createFeedback();
     super.initState();
   }
 
@@ -68,6 +71,10 @@ class _MainScreenState extends State<MainScreen> {
                       hintStyle: TextStyle(fontStyle: FontStyle.italic)),
                   onChanged: _searchRoutineByName,
                 )),
+            Text(
+              feedback,
+              style: TextStyle(color: feedbackColor),
+            ),
             _buildRoutineList()
           ],
         ),
@@ -142,6 +149,20 @@ class _MainScreenState extends State<MainScreen> {
       } else {
         routines = null;
       }
+    });
+  }
+
+  createFeedback() {
+    isarServices.listenToRoutine().listen((event) {
+      setState(() {
+        if (event.length > 3) {
+          feedback = 'You have more than 3 tasks to do';
+          feedbackColor = Colors.red;
+        } else {
+          feedback = 'You are right in track';
+          feedbackColor = Colors.green;
+        }
+      });
     });
   }
 }
