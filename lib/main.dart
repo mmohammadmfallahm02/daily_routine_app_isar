@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'src/screens/main_screen.dart';
+import 'src/presentation/screens/main_screen.dart';
 import 'src/utils/dimens.dart';
 import 'src/utils/themes.dart';
 

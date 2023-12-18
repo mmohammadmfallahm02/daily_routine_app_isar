@@ -17,19 +17,37 @@ class IsarServices {
     isar.writeTxnSync(() => isar.categorys.putSync(newCategory));
   }
 
-  Future<void> addRoutine({
-    required String routineTitle,
-    required String startTimeRoutine,
-    required String routineDay,
-    required Category routineCategory,
-  }) async {
+  Future<void> addRoutine({required Routine newRoutine}) async {
     final isar = await db;
-    final newRoutine = Routine()
-      ..title = routineTitle
-      ..startTime = startTimeRoutine
-      ..day = routineDay
-      ..category.value = routineCategory;
     isar.writeTxnSync(() => isar.routines.putSync(newRoutine));
+  }
+
+  Future<void> updateRoutine({required Routine updatedRoutine}) async {
+    final isar = await db;
+    isar.writeTxnSync(() => isar.routines.putSync(updatedRoutine));
+  }
+
+  Stream<List<Routine>> listenToRoutine() async* {
+    final isar = await db;
+    yield* isar.routines.where().watch(fireImmediately: true);
+  }
+
+  Future<Routine?> getRoutineById({required int id}) async {
+    final isar = await db;
+    final routine = isar.routines.getSync(id);
+    return routine;
+  }
+
+  Future<void> deleteRoutineById({required int id}) async {
+    final isar = await db;
+    isar.writeTxn(() => isar.routines.delete(id));
+  }
+
+  Future<List<Routine>> getRoutineByName(String searchName) async {
+    final isar = await db;
+    final routines =
+        await isar.routines.filter().titleContains(searchName).findAll();
+    return routines;
   }
 
   Future<List<Category>> getAllCategories() async {
@@ -44,6 +62,11 @@ class IsarServices {
     return routine;
   }
 
+  Future<void> clearAll() async {
+    final isar = await db;
+    isar.writeTxn(() => isar.routines.clear());
+  }
+
   Future<Isar> openDb() async {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.instanceNames.isEmpty) {
@@ -53,52 +76,3 @@ class IsarServices {
     return Future.value(Isar.getInstance());
   }
 }
-
-
-
-  // Future<void> saveCourse(Course newCourse) async {
-  //   final isar = await db;
-  //   isar.writeTxnSync(<int>() => isar.courses.putSync(newCourse));
-  // }
-
-  // Future<void> saveStudent(Student newStudent) async {
-  //   final isar = await db;
-  //   isar.writeTxnSync(<int>() => isar.students.putSync(newStudent));
-  // }
-
-  // Future<void> saveTeacher(Teacher newTeacher) async {
-  //   final isar = await db;
-  //   isar.writeTxnSync(<int>() => isar.teachers.putSync(newTeacher));
-  // }
-
-  // Future<List<Course>> getAllCourses() async {
-  //   final isar = await db;
-  //   return await isar.courses.where().findAll();
-  // }
-
-  // Stream<List<Course>> listenToCourses() async* {
-  //   final isar = await db;
-  //   yield* isar.courses.where().watch(fireImmediately: true);
-  // }
-
-  // Future<void> cleanDb() async {
-  //   final isar = await db;
-  //   await isar.writeTxn(() => isar.clear());
-  // }
-
-  // Future<List<Student>> getStudentsFor(Course course) async {
-  //   final isar = await db;
-  //   return await isar.students
-  //       .filter()
-  //       .courses((q) => q.idEqualTo(course.id))
-  //       .findAll();
-  // }
-
-  // Future<Teacher?> getTeacherFor(Course course) async {
-  //   final isar = await db;
-  //   final teacher = await isar.teachers
-  //       .filter()
-  //       .course((q) => q.idEqualTo(course.id))
-  //       .findFirst();
-  //   return teacher;
-  // }
