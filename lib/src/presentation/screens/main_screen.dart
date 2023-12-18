@@ -71,10 +71,6 @@ class _MainScreenState extends State<MainScreen> {
                       hintStyle: TextStyle(fontStyle: FontStyle.italic)),
                   onChanged: _searchRoutineByName,
                 )),
-            Text(
-              feedback,
-              style: TextStyle(color: feedbackColor),
-            ),
             _buildRoutineList()
           ],
         ),
@@ -95,16 +91,24 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildAllRoutines() {
-    return StreamBuilder(
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Routine> routines = snapshot.data!;
-          return _buildListCards(routines);
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
-      stream: isarServices.listenToRoutine(),
+    return Column(
+      children: [
+        Text(
+          feedback,
+          style: TextStyle(color: feedbackColor),
+        ),
+        StreamBuilder(
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              List<Routine> routines = snapshot.data!;
+              return _buildListCards(routines);
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+          stream: isarServices.listenToRoutine(),
+        ),
+      ],
     );
   }
 
