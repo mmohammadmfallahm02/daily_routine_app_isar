@@ -1,4 +1,5 @@
 import 'package:daily_routine_app_isar/src/data/category.dart';
+import 'package:daily_routine_app_isar/src/data/product.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -67,10 +68,24 @@ class IsarServices {
     isar.writeTxn(() => isar.routines.clear());
   }
 
+  Future<void> writeProducts(List<Map<String, dynamic>>? products) async {
+    final isar = await db;
+    isar.writeTxn(() async {
+      await isar.products.clear();
+      await isar.products.importJson(products!);
+    });
+  }
+
+  Future<List<Product>> getProducts() async {
+    final isar = await db;
+    final products = await isar.products.where().findAll();
+    return products;
+  }
+
   Future<Isar> openDb() async {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.instanceNames.isEmpty) {
-      return await Isar.open([RoutineSchema, CategorySchema],
+      return await Isar.open([RoutineSchema, CategorySchema,ProductSchema],
           directory: dir.path, inspector: true);
     }
     return Future.value(Isar.getInstance());

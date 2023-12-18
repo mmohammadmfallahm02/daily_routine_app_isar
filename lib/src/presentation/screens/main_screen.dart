@@ -1,6 +1,10 @@
+import 'package:daily_routine_app_isar/src/data/product.dart';
 import 'package:daily_routine_app_isar/src/data/routine.dart';
+import 'package:daily_routine_app_isar/src/services/http_service.dart';
+import 'package:daily_routine_app_isar/src/utils/config.dart';
 import 'package:daily_routine_app_isar/src/utils/dimens.dart';
 import 'package:daily_routine_app_isar/src/utils/themes.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/routine_card_widget.dart';
@@ -16,6 +20,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final IsarServices isarServices = IsarServices();
+  final HttpServices httpServices = HttpServices();
   final TextEditingController _searchController = TextEditingController();
   List<Routine>? routines;
   bool isLoading = true;
@@ -54,7 +59,12 @@ class _MainScreenState extends State<MainScreen> {
                           )));
             },
             icon: const Icon(Icons.add),
-          )
+          ),
+          IconButton(
+              onPressed: () {
+                _apiToisar();
+              },
+              icon: const Icon(Icons.download))
         ],
         centerTitle: true,
       ),
@@ -71,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
                       hintStyle: TextStyle(fontStyle: FontStyle.italic)),
                   onChanged: _searchRoutineByName,
                 )),
-            _buildRoutineList()
+            _buildRoutineList(),
           ],
         ),
       ),
@@ -108,6 +118,56 @@ class _MainScreenState extends State<MainScreen> {
           },
           stream: isarServices.listenToRoutine(),
         ),
+        FutureBuilder<List<Product>>(
+            future: generateProducts(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data!.isNotEmpty) {
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: AppDimens.small,
+                    mainAxisSpacing: AppDimens.small,
+                    padding: const EdgeInsets.only(
+                        top: AppDimens.large, bottom: AppDimens.large * 5),
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    children: List.generate(snapshot.data!.length, (index) {
+                      final item = snapshot.data![index];
+                      return Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppDimens.small),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.sizeOf(context).width * .4,
+                                  height: 90,
+                                  child: Image.network(
+                                    item.image!,
+                                    fit: BoxFit.fitHeight,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    item.title!,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                ElevatedButton(
+                                    onPressed: () {}, child: const Text('View'))
+                              ]),
+                        ),
+                      );
+                    }),
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              } else {
+                return const SizedBox();
+              }
+            })
       ],
     );
   }
@@ -168,5 +228,25 @@ class _MainScreenState extends State<MainScreen> {
         }
       });
     });
+  }
+
+  _apiToisar() async {
+    httpServices.init(BaseOptions(
+      baseUrl: baseUrl,
+      contentType: 'application/json',
+    ));
+    final response = await httpServices.request(
+        endpoint: 'products?limit=6', method: Method.GET);
+
+    List<Map<String, dynamic>>? products = (response.data as List)
+        .map((item) => item as Map<String, dynamic>)
+        .toList();
+
+    await isarServices.writeProducts(products);
+    setState(() {});
+  }
+
+  Future<List<Product>> generateProducts() async {
+    return await isarServices.getProducts();
   }
 }
